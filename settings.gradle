@@ -12,5 +12,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LivingVillagesCore"
+rootProject.name = "LivingVillages"
 
+include "common"
