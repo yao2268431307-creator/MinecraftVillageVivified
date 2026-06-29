@@ -1,36 +1,9 @@
-plugins {
-    id "java"
-}
-
-group = "com.livingvillages"
-version = "1.0.0-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    withSourcesJar()
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"
-    options.release.set(21)
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
-        showStandardStreams = false
-    }
-}
-
+repositories { mavenCentral() }
 dependencies {
     testImplementation platform("org.junit:junit-bom:5.10.3")
     testImplementation "org.junit.jupiter:junit-jupiter"
 }
-
-// Ensure config resources are included in the jar
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+test {
+    useJUnitPlatform()
+    testLogging { events "passed", "skipped", "failed" }
 }

@@ -19,3 +19,6 @@ Thumbs.db
 *.class
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Temp
+/tmp/

@@ -1,0 +1,17 @@
+plugins {
+    id "fabric-loom" version "${fabric_loom_version}" apply false
+}
+
+subprojects {
+    apply plugin: "java"
+    group = rootProject.maven_group
+    version = rootProject.mod_version
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        options.release = 21
+    }
+    java {
+        withSourcesJar()
+    }
+}
