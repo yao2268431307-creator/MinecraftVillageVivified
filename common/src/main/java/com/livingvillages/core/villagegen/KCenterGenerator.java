@@ -4,255 +4,139 @@ import com.livingvillages.core.config.ModConfig;
 import com.livingvillages.core.data.Vec3i;
 import com.livingvillages.core.data.VillageRecord;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * Generates village distribution coordinates using K-Center clustering
- * and Bridson Poisson Disk Sampling.
+ * Generates clustered village positions from raw vanilla positions.
  *
- * <p>This is a pure function: same ({@code seed}, {@code rangeX}, {@code rangeZ}, {@code cfg})
- * produces identical output. No Minecraft types are referenced.</p>
+ * <p>New approach (v1.1): instead of generating villages from scratch,
+ * we take the vanilla village positions (computed by the MC adapter),
+ * cluster them with proximity-based grouping, and redirect each village
+ * toward its cluster center — preserving the total village count that
+ * vanilla would have generated.</p>
  *
- * <p>Writer of: {@code villages[]} in {@code VillageStateStore}.</p>
+ * <p>K = ceil(villageCount / villagesPerCluster). Each cluster center
+ * becomes the anchor, and member villages are pulled toward it while
+ * maintaining min_separation.</p>
  */
 public final class KCenterGenerator {
 
-    private KCenterGenerator() {
-        // utility class
-    }
+    private KCenterGenerator() {}
 
     /**
-     * Generate village distribution.
+     * Cluster vanilla village positions and redistribute them around centers.
      *
-     * @param seed   world seed
-     * @param rangeX X half-extent in blocks, e.g. 5000 → [-5000, +5000]
-     * @param rangeZ Z half-extent in blocks
-     * @param cfg    module config (uses kcenter.k, kcenter.rCluster, kcenter.minSeparation)
-     * @return unplaced village records — id is deterministic, placed=false
+     * @param seed              world seed
+     * @param vanillaPositions  raw village positions from vanilla structure system
+     * @param cfg               config (uses clusterRadius, minSeparation, villagesPerCluster)
+     * @return clustered VillageRecords ready for placement
      */
-    public static List<VillageRecord> generateKCenters(
-            long seed, int rangeX, int rangeZ, ModConfig cfg) {
-        Random rng = new Random(seed);
-        int k = cfg.k();
-        int rCluster = cfg.rCluster();
-        int minSeparation = cfg.minSeparation();
-        int globalIndex = 0;
-
-        // Phase 1: K-Center — select K cluster centers
-        List<Vec3i> centers = selectKCenters(rng, k, rangeX, rangeZ);
-
-        // Phase 2: Poisson Disk Sampling within each cluster
-        List<VillageRecord> allVillages = new ArrayList<>();
-        for (Vec3i center : centers) {
-            List<Vec3i> sampled = poissonDiskSample(rng, center, rCluster, minSeparation);
-            for (Vec3i pos : sampled) {
-                UUID id = UUID.nameUUIDFromBytes(
-                        ("livingvillage:" + seed + ":" + globalIndex).getBytes());
-                allVillages.add(new VillageRecord(
-                        id, pos, "unresolved", 0, 0L, false));
-                globalIndex++;
-            }
-        }
-
-        return Collections.unmodifiableList(allVillages);
-    }
-
-    /**
-     * Expand village generation into a new region.
-     *
-     * @param seed     world seed
-     * @param existing already-placed villages (for avoidance)
-     * @param newMinX  new region X min
-     * @param newMaxX  new region X max
-     * @param newMinZ  new region Z min
-     * @param newMaxZ  new region Z max
-     * @param cfg      module config
-     * @return new village records that do not overlap with existing
-     */
-    public static List<VillageRecord> expandKCenters(
+    public static List<VillageRecord> generateClusteredVillages(
             long seed,
-            List<VillageRecord> existing,
-            int newMinX, int newMaxX,
-            int newMinZ, int newMaxZ,
+            List<Vec3i> vanillaPositions,
             ModConfig cfg) {
-        Random rng = new Random(seed);
-        int k = cfg.k();
-        int rCluster = cfg.rCluster();
+
+        if (vanillaPositions.isEmpty()) return List.of();
+
+        int villagesPerCluster = cfg.villagesPerCluster();
+        int k = Math.max(1, (int) Math.ceil((double) vanillaPositions.size() / villagesPerCluster));
+        int clusterRadius = cfg.clusterRadius();
         int minSeparation = cfg.minSeparation();
 
-        // Determine how many centers in new region (proportional to area)
-        int fullRangeX = Math.max(Math.abs(newMinX), Math.abs(newMaxX));
-        int fullRangeZ = Math.max(Math.abs(newMinZ), Math.abs(newMaxZ));
-        List<Vec3i> centers = selectKCenters(rng, k, fullRangeX, fullRangeZ);
+        // Step 1: Select K cluster centers from vanilla positions using greedy max-min
+        List<Vec3i> centers = selectClusterCenters(vanillaPositions, k, seed);
 
-        // Filter centers to those within the new region
-        List<Vec3i> newRegionCenters = new ArrayList<>();
-        for (Vec3i c : centers) {
-            if (c.x() >= newMinX && c.x() <= newMaxX
-                    && c.z() >= newMinZ && c.z() <= newMaxZ) {
-                newRegionCenters.add(c);
+        // Step 2: Assign each village to nearest center
+        Map<Integer, List<Vec3i>> clusters = new LinkedHashMap<>();
+        for (int i = 0; i < k; i++) clusters.put(i, new ArrayList<>());
+        for (Vec3i pos : vanillaPositions) {
+            int nearest = 0;
+            double minDist = Double.MAX_VALUE;
+            for (int i = 0; i < centers.size(); i++) {
+                double d = pos.horizontalDistance(centers.get(i));
+                if (d < minDist) { minDist = d; nearest = i; }
             }
+            clusters.get(nearest).add(pos);
         }
 
-        // Generate villages, filtering out those too close to existing
-        List<VillageRecord> newVillages = new ArrayList<>();
-        int globalIndex = existing.size(); // continue indexing
+        // Step 3: Redirect each village toward its cluster center
+        List<VillageRecord> result = new ArrayList<>();
+        int globalIndex = 0;
+        Random rng = new Random(seed);
 
-        for (Vec3i center : newRegionCenters) {
-            List<Vec3i> sampled = poissonDiskSample(rng, center, rCluster, minSeparation);
-            for (Vec3i pos : sampled) {
-                // Check against existing villages
-                boolean tooClose = false;
-                for (VillageRecord ev : existing) {
-                    if (pos.horizontalDistance(ev.position()) < minSeparation) {
-                        tooClose = true;
-                        break;
-                    }
-                }
-                if (tooClose) continue;
+        for (int ci = 0; ci < k; ci++) {
+            Vec3i center = centers.get(ci);
+            List<Vec3i> members = clusters.get(ci);
 
-                // Also check against already-generated new villages
-                for (VillageRecord nv : newVillages) {
-                    if (pos.horizontalDistance(nv.position()) < minSeparation) {
-                        tooClose = true;
-                        break;
-                    }
-                }
-                if (tooClose) continue;
+            // Center village (anchor)
+            UUID centerId = UUID.nameUUIDFromBytes(
+                    ("livingvillage:" + seed + ":c:" + ci).getBytes());
+            result.add(new VillageRecord(centerId, center, "unresolved", 0, 0L, false));
 
+            // Satellite villages: pull toward center
+            for (Vec3i originalPos : members) {
+                // Pull factor: how close to the center (0=far, 1=at center)
+                double distance = originalPos.horizontalDistance(center);
+                double pullFactor = Math.min(1.0, clusterRadius / Math.max(1, distance));
+                // Blend: pulled position between original and center
+                int nx = (int) (originalPos.x() + (center.x() - originalPos.x()) * pullFactor);
+                int nz = (int) (originalPos.z() + (center.z() - originalPos.z()) * pullFactor);
+                // Add jitter within minSeparation
+                double angle = rng.nextDouble() * 2 * Math.PI;
+                double jitter = rng.nextDouble() * minSeparation * 0.5;
+                nx += (int) (Math.cos(angle) * jitter);
+                nz += (int) (Math.sin(angle) * jitter);
+
+                Vec3i redirected = new Vec3i(nx, 0, nz);
                 UUID id = UUID.nameUUIDFromBytes(
                         ("livingvillage:" + seed + ":" + globalIndex).getBytes());
-                newVillages.add(new VillageRecord(
-                        id, pos, "unresolved", 0, 0L, false));
+                result.add(new VillageRecord(id, redirected, "unresolved", 0, 0L, false));
                 globalIndex++;
             }
         }
 
-        return Collections.unmodifiableList(newVillages);
+        return Collections.unmodifiableList(result);
     }
 
-    // ─── Private helpers ───
-
     /**
-     * Greedy K-Center selection.
-     * First center is random; subsequent centers maximize minimum distance
-     * to already-selected centers, chosen from a pool of 200 random candidates.
+     * Greedy max-min selection of K cluster centers from candidate positions.
      */
-    static List<Vec3i> selectKCenters(Random rng, int k, int rangeX, int rangeZ) {
+    private static List<Vec3i> selectClusterCenters(List<Vec3i> positions, int k, long seed) {
+        if (positions.size() <= k) return new ArrayList<>(positions);
+
+        Random rng = new Random(seed);
         List<Vec3i> centers = new ArrayList<>();
-        if (k <= 0) return centers;
+        Set<Integer> used = new HashSet<>();
 
-        // First center: uniform random
-        Vec3i first = new Vec3i(
-                rng.nextInt(-rangeX, rangeX + 1),
-                0,
-                rng.nextInt(-rangeZ, rangeZ + 1));
-        centers.add(first);
+        // First center: random
+        int firstIdx = rng.nextInt(positions.size());
+        centers.add(positions.get(firstIdx));
+        used.add(firstIdx);
 
-        // Subsequent centers: greedy max-min
+        // Remaining: greedy max-min from random candidates
         for (int i = 1; i < k; i++) {
-            Vec3i best = null;
+            int best = -1;
             double bestMinDist = -1;
-
-            // Sample 200 candidates
-            for (int j = 0; j < 200; j++) {
-                Vec3i candidate = new Vec3i(
-                        rng.nextInt(-rangeX, rangeX + 1),
-                        0,
-                        rng.nextInt(-rangeZ, rangeZ + 1));
-
+            int candidates = Math.min(50, positions.size());
+            for (int c = 0; c < candidates; c++) {
+                int idx = rng.nextInt(positions.size());
+                if (used.contains(idx)) continue;
+                Vec3i p = positions.get(idx);
                 double minDist = Double.MAX_VALUE;
-                for (Vec3i c : centers) {
-                    double d = c.horizontalDistance(candidate);
-                    if (d < minDist) minDist = d;
+                for (Vec3i center : centers) {
+                    minDist = Math.min(minDist, p.horizontalDistance(center));
                 }
-
                 if (minDist > bestMinDist) {
                     bestMinDist = minDist;
-                    best = candidate;
+                    best = idx;
                 }
             }
-
-            if (best != null) {
-                centers.add(best);
+            if (best >= 0) {
+                centers.add(positions.get(best));
+                used.add(best);
             }
         }
 
         return centers;
-    }
-
-    /**
-     * Bridson Poisson Disk Sampling within radius rCluster around center.
-     *
-     * @param rng           deterministic PRNG
-     * @param center        cluster center
-     * @param rCluster      max scatter radius
-     * @param minSeparation minimum distance between villages
-     * @return sampled points (Vec3i with y=0)
-     */
-    static List<Vec3i> poissonDiskSample(
-            Random rng, Vec3i center, int rCluster, int minSeparation) {
-
-        List<Vec3i> points = new ArrayList<>();
-        List<Vec3i> active = new ArrayList<>();
-
-        int maxPoints = (int) Math.ceil(
-                Math.PI * rCluster * rCluster / (minSeparation * minSeparation));
-        if (maxPoints < 1) maxPoints = 1;
-
-        // First point: at center
-        points.add(center);
-        active.add(center);
-
-        int cx = center.x();
-        int cz = center.z();
-
-        while (!active.isEmpty() && points.size() < maxPoints) {
-            // Pick a random active point
-            int idx = rng.nextInt(active.size());
-            Vec3i current = active.get(idx);
-
-            boolean found = false;
-            for (int attempt = 0; attempt < 30; attempt++) {
-                // Random point in annulus [minSeparation, 2*minSeparation] around current
-                double angle = rng.nextDouble() * 2.0 * Math.PI;
-                double dist = minSeparation + rng.nextDouble() * minSeparation;
-                int nx = (int) Math.round(current.x() + dist * Math.cos(angle));
-                int nz = (int) Math.round(current.z() + dist * Math.sin(angle));
-
-                // Check within cluster radius from center
-                double dc = Math.sqrt(
-                        (double) (nx - cx) * (nx - cx) + (double) (nz - cz) * (nz - cz));
-                if (dc > rCluster) continue;
-
-                // Check minSeparation against all existing points
-                boolean valid = true;
-                Vec3i candidate = new Vec3i(nx, 0, nz);
-                for (Vec3i p : points) {
-                    if (candidate.horizontalDistance(p) < minSeparation) {
-                        valid = false;
-                        break;
-                    }
-                }
-
-                if (valid) {
-                    points.add(candidate);
-                    active.add(candidate);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                // Remove exhausted active point
-                active.remove(idx);
-            }
-        }
-
-        return points;
     }
 }

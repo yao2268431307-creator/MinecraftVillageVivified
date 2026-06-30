@@ -2,6 +2,7 @@ package com.livingvillages.core.orchestrator;
 
 import com.livingvillages.core.config.ModConfig;
 import com.livingvillages.core.data.*;
+import com.livingvillages.core.data.Vec3i;
 import com.livingvillages.core.naming.BiomeResolver;
 import org.junit.jupiter.api.Test;
 import java.util.*;
@@ -15,7 +16,7 @@ class TickOrchestratorTest {
     @Test
     void onWorldCreate_populatesVillages() {
         InMemoryVillageStateStore store = new InMemoryVillageStateStore();
-        TickOrchestrator.onWorldCreate(42, 2000, 2000, store, CFG);
+        TickOrchestrator.onWorldCreate(42, List.of(new Vec3i(0,0,0), new Vec3i(500,0,500), new Vec3i(-500,0,-500)), store, CFG);
         assertFalse(store.getVillages().isEmpty(),
                 "World creation should populate villages");
     }
@@ -24,8 +25,8 @@ class TickOrchestratorTest {
     void onWorldCreate_withDifferentSeeds_producesDifferentResults() {
         InMemoryVillageStateStore s1 = new InMemoryVillageStateStore();
         InMemoryVillageStateStore s2 = new InMemoryVillageStateStore();
-        TickOrchestrator.onWorldCreate(42, 2000, 2000, s1, CFG);
-        TickOrchestrator.onWorldCreate(99, 2000, 2000, s2, CFG);
+        TickOrchestrator.onWorldCreate(42, List.of(new Vec3i(0,0,0), new Vec3i(500,0,500), new Vec3i(-500,0,-500)), s1, CFG);
+        TickOrchestrator.onWorldCreate(99, List.of(new Vec3i(0,0,0), new Vec3i(500,0,500), new Vec3i(-500,0,-500)), s2, CFG);
         assertNotEquals(s1.getVillages().get(0).position(),
                 s2.getVillages().get(0).position(),
                 "Different seeds should produce different village positions");

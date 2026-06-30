@@ -53,7 +53,7 @@ public final class CaravanSimulator {
         // Spawn new caravans
         int activeCount = (int) updated.stream()
                 .filter(c -> c.phase() != CaravanPhase.IDLE).count();
-        if (activeCount < cfg.maxActiveCaravans() && !prices.isEmpty() && !edges.isEmpty()) {
+        if (activeCount < cfg.maxCaravans() && !prices.isEmpty() && !edges.isEmpty()) {
             CaravanState spawned = spawnCaravan(prices, edges, cfg);
             if (spawned != null) {
                 updated.add(spawned);

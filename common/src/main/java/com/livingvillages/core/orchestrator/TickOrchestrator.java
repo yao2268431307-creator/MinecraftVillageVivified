@@ -3,6 +3,7 @@ package com.livingvillages.core.orchestrator;
 import com.livingvillages.core.caravan.CaravanSimulator;
 import com.livingvillages.core.cluster.ClusterDetector;
 import com.livingvillages.core.config.ModConfig;
+import com.livingvillages.core.data.Vec3i;
 import com.livingvillages.core.data.VillageStateStore;
 import com.livingvillages.core.economy.MarketSimulator;
 import com.livingvillages.core.graph.RegionalGraph;
@@ -10,6 +11,8 @@ import com.livingvillages.core.level.LevelProgression;
 import com.livingvillages.core.naming.BiomeResolver;
 import com.livingvillages.core.naming.NameGenerator;
 import com.livingvillages.core.villagegen.KCenterGenerator;
+
+import java.util.List;
 
 /**
  * Scheduler that knows all Core modules and invokes them in the correct order.
@@ -26,22 +29,20 @@ public final class TickOrchestrator {
     private TickOrchestrator() {}
 
     /**
-     * Called once on world creation. Generates village coordinates.
+     * Called once on world creation. Clusters vanilla village positions.
      *
-     * @param seed   world seed
-     * @param rangeX X half-extent
-     * @param rangeZ Z half-extent
-     * @param store  state store for persisting results
-     * @param cfg    mod config
+     * @param seed             world seed
+     * @param vanillaPositions raw village positions from vanilla structure system
+     * @param store            state store for persisting results
+     * @param cfg              mod config
      */
-    public static void onWorldCreate(long seed, int rangeX, int rangeZ,
+    public static void onWorldCreate(long seed, List<Vec3i> vanillaPositions,
                                       VillageStateStore store, ModConfig cfg) {
         try {
-            var villages = KCenterGenerator.generateKCenters(seed, rangeX, rangeZ, cfg);
+            var villages = KCenterGenerator.generateClusteredVillages(seed, vanillaPositions, cfg);
             store.setVillages(villages);
             store.markDirty();
         } catch (Exception e) {
-            // Log FATAL — world gen failure, fall back to vanilla village gen
             System.err.println("[LivingVillages] FATAL: onWorldCreate failed: " + e.getMessage());
             e.printStackTrace();
         }

@@ -43,7 +43,7 @@ public final class RegionalGraph {
             return; // all clusters already connected (or only 1 unbuilt)
         }
 
-        int k = cfg.knnK();
+        int k = cfg.knnDegree();
         double maxSlope = cfg.maxSlope();
 
         // Phase 1: KNN graph planning

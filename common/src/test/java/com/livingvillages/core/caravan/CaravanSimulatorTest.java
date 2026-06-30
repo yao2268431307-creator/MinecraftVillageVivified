@@ -63,14 +63,14 @@ class CaravanSimulatorTest {
         store.setWarehouses(Map.of(v1, Map.of("food", 100), v2, Map.of("food", 100)));
 
         // Fill to max
-        for (int i = 0; i < CFG.maxActiveCaravans() + 10; i++) {
+        for (int i = 0; i < CFG.maxCaravans() + 10; i++) {
             CaravanSimulator.simulateCaravans(store, CFG);
         }
 
         long active = store.getCaravanStates().stream()
                 .filter(cs -> cs.phase() != CaravanPhase.IDLE).count();
-        assertTrue(active <= CFG.maxActiveCaravans(),
-                "active caravans " + active + " should not exceed max " + CFG.maxActiveCaravans());
+        assertTrue(active <= CFG.maxCaravans(),
+                "active caravans " + active + " should not exceed max " + CFG.maxCaravans());
     }
 
     @Test
