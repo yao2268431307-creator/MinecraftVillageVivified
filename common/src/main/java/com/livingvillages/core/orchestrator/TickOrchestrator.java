@@ -75,12 +75,12 @@ public final class TickOrchestrator {
         // Phase 3: Regional graph (serial, may be framed)
         safeRun("RegionalGraph", () -> RegionalGraph.buildRegionalGraph(store, cfg));
 
-        // Phase 4: Market + Level progression (parallel-safe — disjoint fields)
-        safeRun("MarketSimulator", () -> MarketSimulator.simulateMarket(store, cfg));
+        // Phase 4: Level progression (serial)
         safeRun("LevelProgression", () -> LevelProgression.updateLevels(store));
 
-        // Phase 5: Caravan simulation (serial, depends on MarketSimulator prices)
-        safeRun("CaravanSimulator", () -> CaravanSimulator.simulateCaravans(store, cfg));
+        // Phase 5 (SHELVED): Market + Caravan — not enabled this round
+        // safeRun("MarketSimulator", () -> MarketSimulator.simulateMarket(store, cfg));
+        // safeRun("CaravanSimulator", () -> CaravanSimulator.simulateCaravans(store, cfg));
 
         // Mark data dirty for persistence
         try {
