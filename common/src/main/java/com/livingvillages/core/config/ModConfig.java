@@ -36,6 +36,9 @@ public record ModConfig(
         double diffusionRate,
         int fuelTicks) {
 
+    /** Readable version. */
+    public String modVersion() { return "1.1.0"; }
+
     public static ModConfig defaults() {
         return new ModConfig(
                 0,      // clusterCount (auto)

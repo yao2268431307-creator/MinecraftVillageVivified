@@ -26,8 +26,8 @@ public final class RegionTitleDisplay {
             LocalPlayer player = client.player;
             if (player == null || player.level() == null) return;
 
-            // Get the shared state store from the server via networking
-            // For now, use a simplified check based on local data
+            // Access state store via LivingVillagesFabric
+            if (cachedStore == null) { try { cachedStore = com.livingvillages.adapter.fabric.LivingVillagesFabric.getStateStore(); } catch (Exception e) {} }
             if (cachedStore == null) return;
 
             String currentRegion = findRegion(player.getX(), player.getY(), player.getZ(), cachedStore);
