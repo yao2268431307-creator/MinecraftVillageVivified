@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：4 / 9 模块
-- 进度：44%
+- 已完成：5 / 9 模块
+- 进度：56%
 
 ---
 
@@ -107,7 +107,7 @@
 
 ### M5: RegionStateStore（SavedData 持久化）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：无
 - **子 agent 任务**：
   - 写 `RegionStateStore extends SavedData`
@@ -233,7 +233,7 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 - [x] M2 — 2026-07-03 / commit pending
 - [x] M3 — 2026-07-03 / commit pending
 - [x] M4 — 2026-07-03 / commit pending
-- [ ] M5 — 日期 / commit SHA
+- [x] M5 — 2026-07-03 / commit pending
 - [ ] M6 — 日期 / commit SHA
 - [ ] M7 — 日期 / commit SHA
 - [ ] M8 — 日期 / commit SHA
