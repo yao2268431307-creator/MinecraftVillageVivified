@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：6 / 10 模块（含 M0）
-- 进度：60%
+- 已完成：7 / 10 模块（含 M0）
+- 进度：70%
 
 ---
 
@@ -148,7 +148,7 @@
 
 ### M7: RegionHudRenderer（屏幕角落 HUD）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：M2 + M4
 - **子 agent 任务**：
   - 写 `RegionHudRenderer` 实现 `HudRenderCallback`
@@ -256,6 +256,6 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 - [x] M5 — 2026-07-03 / commit pending
 - [x] M0 — 2026-07-03 / commit pending
 - [x] M6 — 2026-07-03 / commit pending
-- [ ] M7 — 日期 / commit SHA
+- [x] M7 — 2026-07-03 / commit pending
 - [ ] M8 — 日期 / commit SHA
 - [ ] M9 — 日期 / commit SHA

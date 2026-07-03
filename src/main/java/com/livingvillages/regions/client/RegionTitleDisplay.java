@@ -76,6 +76,16 @@ public class RegionTitleDisplay implements ClientTickEvents.EndTick {
         }
     }
 
+    /**
+     * Read the currently injected world seed. Returns {@link Long#MIN_VALUE}
+     * until {@link #setWorldSeed(long)} has been called by the packet handler.
+     *
+     * @return the world seed, or {@code Long.MIN_VALUE} if not yet set
+     */
+    public static long getWorldSeed() {
+        return worldSeed;
+    }
+
     @Override
     public void onEndTick(Minecraft mc) {
         if (mc.player == null || mc.level == null) {
