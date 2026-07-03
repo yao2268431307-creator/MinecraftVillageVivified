@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：8 / 10 模块（含 M0）
-- 进度：80%
+- 已完成：9 / 10 模块（含 M0）
+- 进度：90%
 
 ---
 
@@ -207,7 +207,7 @@
 
 ### M9: RoadMapScreenMixin（H 键地图 UI 标注）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：M2 + M4 + RoadWeaver RoadMapScreen 类
 - **子 agent 任务**：
   - 写 `RoadMapScreenMixin`，`@Mixin(RoadMapScreen.class)`
@@ -259,4 +259,4 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 - [x] M6 — 2026-07-03 / commit pending
 - [x] M7 — 2026-07-03 / commit pending
 - [x] M8 — 2026-07-03 / commit pending
-- [ ] M9 — 日期 / commit SHA
+- [x] M9 — 2026-07-03 / commit pending

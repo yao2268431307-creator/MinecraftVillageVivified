@@ -11,6 +11,9 @@
     "main": ["com.livingvillages.regions.RegionsMod"],
     "client": ["com.livingvillages.regions.RegionsClientMod"]
   },
+  "mixins": [
+    "livingvillages.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.16",
     "minecraft": ">=1.20.1",
