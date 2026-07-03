@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：9 / 10 模块（含 M0）
-- 进度：90%
+- 已完成：10 / 10 模块（含 M0 + M8 stub 补全）
+- 进度：100%
 
 ---
 
@@ -166,7 +166,7 @@
 ### M8: RoadWeaverIntegrator（server 端村庄注册 + 连接）
 
 - **状态**：`[x]` done — 2026-07-03 / commit pending
-- **注**：`findVillageInChunk` 是桩版本（返回 null），待后续补全村庄 StructureStart 查询。骨架完整，RoadWeaver API 调用框架就绪。
+- **注**：`findVillageInChunk` 已补全——用 `getChunkSource().getChunkNow()`（不 force-load）+ `ChunkAccess.getAllStarts()` + Structure registry 过滤 5 种 village，返回 `BoundingBox.getCenter()`。
 - **依赖**：M5（RegionStateStore）+ RoadWeaver API
 - **子 agent 任务**：
   - 写 `RoadWeaverIntegrator` 类

@@ -2,16 +2,22 @@ package com.livingvillages.regions.network;
 
 import com.livingvillages.regions.data.RegionStateStore;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.shiroha233.roadweaver.api.RoadNetworkApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Server-side RoadWeaver integrator.
@@ -27,20 +33,17 @@ import java.util.List;
  * The chunk is then recorded as processed in {@link RegionStateStore} so it is
  * not re-registered after a world reload.</p>
  *
- * <h2>Village discovery (stage stub)</h2>
+ * <h2>Village discovery</h2>
  *
- * <p>{@link #findVillageInChunk(ServerLevel, int, int)} is intentionally a stub
- * that always returns {@code null}. Resolving a village {@code StructureStart}
- * in 1.20.1 requires looking up the {@code village} {@code StructureType} in the
- * registry, forcing or polling chunk load state (chunks outside the player's
- * view distance are not loaded and have no {@code StructureStart} available), and
- * walking {@code StructureManager#startsForStructure(...)}. That wiring is
- * non-trivial and depends on the chosen {@code StructureSet} (vanilla vs. the
- * mod's own {@code extra_village.json}); it is deferred to a follow-up task so
- * that the RoadWeaver registration + connection skeleton can compile and run
- * without blocking downstream modules. Until the stub is filled in,
- * {@code newVillages} is always empty and the RoadWeaver API is never called —
- * the mod stays inert but safe.</p>
+ * <p>{@link #findVillageInChunk(ServerLevel, int, int)} resolves a village
+ * {@code StructureStart} by polling already-loaded chunks via
+ * {@code getChunkNow} (no force-load, so it is safe to call on every tick),
+ * walking {@link ChunkAccess#getAllStarts()}, and matching the
+ * {@link Structure}'s registry key against the five vanilla village variants
+ * ({@code minecraft:village_plains}, {@code village_desert}, {@code village_savanna},
+ * {@code village_snowy}, {@code village_taiga}). The matched start's
+ * {@link StructureStart#getBoundingBox()} center is used as the RoadWeaver
+ * endpoint position.</p>
  *
  * <p>This class is stateless; all state lives in {@link RegionStateStore}, which
  * is loaded on demand from the overworld's {@code DataStorage}. Throttling is
@@ -136,27 +139,57 @@ public final class RoadWeaverIntegrator {
     }
 
     /**
-     * Locate a village {@code StructureStart} in the given chunk and return a
-     * representative {@link BlockPos} for RoadWeaver registration.
+     * Locate a village {@link StructureStart} in the given chunk and return its
+     * bounding-box center as a {@link BlockPos} for RoadWeaver registration.
      *
-     * <p><strong>Stub.</strong> Always returns {@code null} in this revision.
-     * The full 1.20.1 implementation needs to (1) resolve the {@code village}
-     * {@code StructureType} from the registry, (2) ensure the chunk is loaded
-     * (or use {@code getChunkNow} / force-load semantics), and (3) query
-     * {@code level.structureManager().startsForStructure(...)} — the exact
-     * signature varies between mappings revisions and the choice of vanilla vs.
-     * the mod's custom {@code extra_village} structure set. Filling this in is
-     * tracked separately so the surrounding RoadWeaver registration + connection
-     * skeleton can compile and be exercised first.</p>
+     * <p>Only already-loaded chunks are inspected ({@code getChunkNow}, no
+     * force-load), so this is safe to call on every tick without stalling the
+     * main thread on chunk generation. Village matching uses the five vanilla
+     * village structure keys ({@code minecraft:village_plains}, {@code _desert},
+     * {@code _savanna}, {@code _snowy}, {@code _taiga}).</p>
      *
      * @param level  the overworld
      * @param chunkX the chunk X coordinate
      * @param chunkZ the chunk Z coordinate
-     * @return a {@link BlockPos} at the village, or {@code null} if no village
-     *         is present (currently always {@code null})
+     * @return the village center {@link BlockPos}, or {@code null} if the chunk
+     *         is not loaded or contains no village {@code StructureStart}
      */
-    // TODO: implement village StructureStart lookup — see class Javadoc.
     private static BlockPos findVillageInChunk(ServerLevel level, int chunkX, int chunkZ) {
+        // 1. Poll the chunk only if already loaded (no force-load).
+        ChunkAccess chunk = level.getChunkSource().getChunkNow(chunkX, chunkZ);
+        if (chunk == null) {
+            return null;
+        }
+
+        // 2. Walk all structure starts in this chunk.
+        Map<Structure, StructureStart> starts = chunk.getAllStarts();
+        if (starts == null || starts.isEmpty()) {
+            return null;
+        }
+
+        // 3. Resolve the Structure registry so we can match by ResourceLocation.
+        Registry<Structure> registry = level.registryAccess()
+                .registry(Registries.STRUCTURE)
+                .orElse(null);
+        if (registry == null) {
+            return null;
+        }
+
+        // 4. Find the first start whose registry key is a vanilla village variant.
+        for (Map.Entry<Structure, StructureStart> entry : starts.entrySet()) {
+            ResourceLocation key = registry.getKey(entry.getKey());
+            if (key == null) {
+                continue;
+            }
+            String id = key.toString();
+            if (id.equals("minecraft:village_plains")
+                    || id.equals("minecraft:village_desert")
+                    || id.equals("minecraft:village_savanna")
+                    || id.equals("minecraft:village_snowy")
+                    || id.equals("minecraft:village_taiga")) {
+                return entry.getValue().getBoundingBox().getCenter();
+            }
+        }
         return null;
     }
 }
