@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：2 / 9 模块
-- 进度：22%
+- 已完成：4 / 9 模块
+- 进度：44%
 
 ---
 
@@ -64,7 +64,7 @@
 
 ### M3: RegionNamePool（10 种区位命名池）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：M2（RegionType 枚举）
 - **子 agent 任务**：
   - 写 `RegionNamePool` 类，含 `RegionWords` record（prefixes/midfix/suffixes）
@@ -84,7 +84,7 @@
 
 ### M4: RegionNameGenerator（确定性命名）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：M2（RegionType）+ M3（RegionNamePool）
 - **子 agent 任务**：
   - 写 `RegionNameGenerator` 类
@@ -231,8 +231,8 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 
 - [x] M1 — 2026-07-03 / commit pending
 - [x] M2 — 2026-07-03 / commit pending
-- [ ] M3 — 日期 / commit SHA
-- [ ] M4 — 日期 / commit SHA
+- [x] M3 — 2026-07-03 / commit pending
+- [x] M4 — 2026-07-03 / commit pending
 - [ ] M5 — 日期 / commit SHA
 - [ ] M6 — 日期 / commit SHA
 - [ ] M7 — 日期 / commit SHA
