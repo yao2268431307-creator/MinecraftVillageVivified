@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：5 / 9 模块
-- 进度：56%
+- 已完成：6 / 10 模块（含 M0）
+- 进度：60%
 
 ---
 
@@ -127,7 +127,7 @@
 
 ### M6: RegionTitleDisplay（客户端飘字）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：M2（BiomeRegionResolver）+ M4（RegionNameGenerator）
 - **子 agent 任务**：
   - 写 `RegionTitleDisplay` 实现 `ClientTickEvents.EndClientTick`
@@ -184,6 +184,26 @@
 
 ---
 
+### M0: RegionSeedSync（server→client seed 同步）
+
+- **状态**：`[x]` done — 2026-07-03 / commit pending
+- **依赖**：M6（setWorldSeed 接口）
+- **被依赖**：M6, M7, M9
+- **子 agent 任务**：
+  - server 端 `ServerPlayConnectionEvents.JOIN` 发 world seed 包
+  - client 端 `ClientPlayNetworking.registerGlobalReceiver` 接收，调 `RegionTitleDisplay.setWorldSeed`
+  - 创建 `RegionNetworking`（包 ID 常量）+ `SeedSender` + `SeedReceiver`
+  - 创建 `RegionsMod`（ModInitializer）+ `RegionsClientMod`（ClientModInitializer）
+- **验收标准**：
+  - 编译通过
+  - server 端玩家加入时发包
+  - client 端接收后调 setWorldSeed
+  - RegionTitleDisplay 注册到 END_CLIENT_TICK
+- **unit tests**：无（网络包难测）
+- **风险**：低
+
+---
+
 ### M9: RoadMapScreenMixin（H 键地图 UI 标注）
 
 - **状态**：`[ ]` pending
@@ -234,7 +254,8 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 - [x] M3 — 2026-07-03 / commit pending
 - [x] M4 — 2026-07-03 / commit pending
 - [x] M5 — 2026-07-03 / commit pending
-- [ ] M6 — 日期 / commit SHA
+- [x] M0 — 2026-07-03 / commit pending
+- [x] M6 — 2026-07-03 / commit pending
 - [ ] M7 — 日期 / commit SHA
 - [ ] M8 — 日期 / commit SHA
 - [ ] M9 — 日期 / commit SHA

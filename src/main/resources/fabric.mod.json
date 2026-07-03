@@ -8,7 +8,8 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.livingvillages.cluster.ClusterEntrypoint"]
+    "main": ["com.livingvillages.regions.RegionsMod"],
+    "client": ["com.livingvillages.regions.RegionsClientMod"]
   },
   "depends": {
     "fabricloader": ">=0.16",
