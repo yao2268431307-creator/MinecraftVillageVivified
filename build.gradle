@@ -1,0 +1,33 @@
+plugins {
+    id "fabric-loom"
+}
+
+group = rootProject.maven_group
+version = rootProject.mod_version
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 17
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    // RoadWeaver as mod dependency (we call its API)
+    modImplementation files("libs/roadweaver-fabric-2.2.2-1.20.1.jar")
+}
+
+repositories {
+    maven { url "https://maven.fabricmc.net/" }
+    mavenCentral()
+}
+
+processResources {
+    filesMatching("fabric.mod.json") {
+        expand "version": rootProject.mod_version
+    }
+}

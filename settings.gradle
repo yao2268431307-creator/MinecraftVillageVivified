@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        maven { url "https://maven.fabricmc.net/" }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "fabric-loom" version "${fabric_loom_version}"
+    }
+}
+rootProject.name = "LivingVillages-Cluster"

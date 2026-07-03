@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "livingvillages-cluster",
+  "version": "${version}",
+  "name": "LivingVillages Cluster",
+  "description": "Hand-places village pieces at super-cell centers after worldgen, spawns villagers, and connects them via RoadWeaver.",
+  "authors": ["yao2268431307-creator"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.livingvillages.cluster.ClusterEntrypoint"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16",
+    "minecraft": ">=1.20.1",
+    "java": ">=17",
+    "fabric-api": "*",
+    "roadweaver": "*"
+  }
+}
