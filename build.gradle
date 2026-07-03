@@ -19,6 +19,14 @@ dependencies {
 
     // RoadWeaver as mod dependency (we call its API)
     modImplementation files("libs/roadweaver-fabric-2.2.2-1.20.1.jar")
+
+    // JUnit 5 for unit tests (pure-logic tests run without the MC runtime)
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 repositories {

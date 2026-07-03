@@ -16,8 +16,8 @@
 
 ## 完成度
 
-- 已完成：0 / 9 模块
-- 进度：0%
+- 已完成：2 / 9 模块
+- 进度：22%
 
 ---
 
@@ -25,7 +25,7 @@
 
 ### M1: 自定义 StructureSet（额外村庄）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：无
 - **子 agent 任务**：
   - 创建 `src/main/resources/data/livingvillages/worldgen/structure_set/extra_village.json`
@@ -42,7 +42,7 @@
 
 ### M2: BiomeRegionResolver（biome → 区位类型）
 
-- **状态**：`[ ]` pending
+- **状态**：`[x]` done — 2026-07-03 / commit pending
 - **依赖**：无
 - **子 agent 任务**：
   - 写 `RegionType` 枚举（DESERT/SNOWY/PLAINS/TAIGA/SAVANNA/SWAMP/JUNGLE/MOUNTAIN/FOREST/OTHER）
@@ -229,8 +229,8 @@ M9 (RoadMapScreenMixin)    依赖 M2, M4
 
 （主 agent 审核通过后填写）
 
-- [ ] M1 — 日期 / commit SHA
-- [ ] M2 — 日期 / commit SHA
+- [x] M1 — 2026-07-03 / commit pending
+- [x] M2 — 2026-07-03 / commit pending
 - [ ] M3 — 日期 / commit SHA
 - [ ] M4 — 日期 / commit SHA
 - [ ] M5 — 日期 / commit SHA
