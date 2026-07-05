@@ -2,8 +2,8 @@
   "placement": {
     "type": "minecraft:random_spread",
     "salt": 5803128,
-    "separation": 4,
-    "spacing": 13
+    "separation": 3,
+    "spacing": 11
   },
   "structures": [
     { "structure": "minecraft:village_plains", "weight": 1 },
