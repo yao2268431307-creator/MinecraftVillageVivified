@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -93,6 +94,34 @@ public class RegionStateStore extends SavedData {
      */
     public int size() {
         return processedVillages.size();
+    }
+
+    /**
+     * @return an unmodifiable view of the processed-chunk key set, for
+     *         shipping to clients (the settlement set)
+     */
+    public Set<Long> processedChunkKeys() {
+        return Collections.unmodifiableSet(processedVillages);
+    }
+
+    /**
+     * Decode the chunk X coordinate from a 64-bit chunk key.
+     *
+     * @param key a chunk key from {@link #chunkKey(int, int)}
+     * @return the chunk X coordinate
+     */
+    public static int chunkX(long key) {
+        return (int) (key & 0xFFFFFFFFL);
+    }
+
+    /**
+     * Decode the chunk Z coordinate from a 64-bit chunk key.
+     *
+     * @param key a chunk key from {@link #chunkKey(int, int)}
+     * @return the chunk Z coordinate
+     */
+    public static int chunkZ(long key) {
+        return (int) (key >>> 32);
     }
 
     /**

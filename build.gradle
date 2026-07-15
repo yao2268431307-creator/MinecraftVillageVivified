@@ -20,6 +20,12 @@ dependencies {
     // RoadWeaver as mod dependency (we call its API)
     modImplementation files("libs/roadweaver-fabric-2.2.2-1.20.1.jar")
 
+    // Cloth Config (RoadWeaver's dependency)
+    modImplementation "me.shedaniel.cloth:cloth-config-fabric:11.1.106"
+
+    // Architectury API (RoadWeaver's dependency)
+    modImplementation "dev.architectury:architectury-fabric:9.1.12"
+
     // JUnit 5 for unit tests (pure-logic tests run without the MC runtime)
     testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
@@ -31,6 +37,8 @@ test {
 
 repositories {
     maven { url "https://maven.fabricmc.net/" }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.architectury.dev/" }
     maven { url "https://bmclapi2.bangbang93.com/libraries/" }
     maven { url "https://bmclapi2.bangbang93.com/maven/" }
     mavenCentral()

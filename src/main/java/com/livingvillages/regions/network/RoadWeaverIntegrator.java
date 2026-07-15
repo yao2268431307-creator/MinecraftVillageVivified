@@ -54,8 +54,8 @@ public final class RoadWeaverIntegrator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("livingvillages");
 
-    /** Scan radius around the player, in blocks. */
-    private static final int SCAN_RADIUS_BLOCKS = 500;
+    /** Scan radius around the player, in blocks. Covers city footprints (8&times; = 640 blocks). */
+    private static final int SCAN_RADIUS_BLOCKS = 768;
 
     /** Scan radius around the player, in chunks (derived from {@link #SCAN_RADIUS_BLOCKS}). */
     private static final int SCAN_RADIUS_CHUNKS = SCAN_RADIUS_BLOCKS / 16;
@@ -121,6 +121,8 @@ public final class RoadWeaverIntegrator {
 
                 newVillages.add(villagePos);
                 store.markProcessed(chunkX, chunkZ);
+                // Push this new settlement to all clients so they can name it.
+                SettlementsSender.sendOne(server, chunkX, chunkZ);
             }
         }
 

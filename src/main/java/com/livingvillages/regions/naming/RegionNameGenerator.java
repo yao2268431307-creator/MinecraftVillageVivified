@@ -91,13 +91,11 @@ public final class RegionNameGenerator {
     }
 
     /**
-     * Hash the world seed with two spatial coordinates using vanilla's
-     * scrambling constants.
+     * Hash the world seed with two spatial coordinates. Delegates to
+     * {@link SeedHash} so tier resolution and naming share one formula.
      */
     private static long hashSeed(long worldSeed, int x, int z) {
-        return worldSeed
-            ^ ((long) x * 341873128712L)
-            ^ ((long) z * 132897987541L);
+        return SeedHash.hash(worldSeed, x, z);
     }
 
     /**

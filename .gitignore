@@ -17,3 +17,6 @@ libs/
 .DS_Store
 Thumbs.db
 logs/
+
+# Loom dev runtime (crash reports, options.txt, world saves, user cache — personal/local)
+run/

@@ -1,5 +1,10 @@
 # LivingVillages Biome Regions — 模块任务清单
 
+> **⚠️ SUPERSEDED.** This task tracker covers the *original* M0–M9 super-cell-region
+> build, which has been replaced by the settlement-tier system (village/town/city tiers,
+> per-settlement naming, city spawns, `/nearestcity`/`/nearesttown`). See
+> [`README.md`](./README.md) for the current design. Kept as a historical record.
+
 > 配合 `DESIGN.md` 使用。本文件列出所有待完成模块，主 agent 串行启动子 agent 完成，每个模块审核通过后才能标注 done。
 
 ## 工作流

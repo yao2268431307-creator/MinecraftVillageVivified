@@ -1,27 +1,25 @@
 package com.livingvillages.regions;
 
-import com.livingvillages.regions.client.RegionHudRenderer;
 import com.livingvillages.regions.client.RegionTitleDisplay;
 import com.livingvillages.regions.network.SeedReceiver;
+import com.livingvillages.regions.network.SettlementsReceiver;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 /**
  * LivingVillages Regions client initializer.
  *
  * <p>Registers the world-seed packet receiver ({@link SeedReceiver#register()}),
- * the per-tick region-name float-text listener ({@link RegionTitleDisplay})
- * onto {@link ClientTickEvents#END_CLIENT_TICK}, and the top-right corner
- * region-name HUD ({@link RegionHudRenderer}) onto
- * {@link HudRenderCallback#EVENT}.</p>
+ * the settlements packet receiver ({@link SettlementsReceiver#register()}),
+ * and the per-tick settlement-name float-text listener
+ * ({@link RegionTitleDisplay}) onto {@link ClientTickEvents#END_CLIENT_TICK}.</p>
  */
 public class RegionsClientMod implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
         SeedReceiver.register();
+        SettlementsReceiver.register();
         ClientTickEvents.END_CLIENT_TICK.register(new RegionTitleDisplay());
-        HudRenderCallback.EVENT.register(new RegionHudRenderer());
     }
 }

@@ -7,18 +7,24 @@ import net.minecraft.resources.ResourceLocation;
  *
  * <p>Minecraft 1.20.1 uses the {@code ResourceLocation} + {@code FriendlyByteBuf}
  * style of custom payload (the 1.20.5+ {@code Payload} API does not yet exist).
- * A single channel id is declared here so both the server-side
- * {@link SeedSender} and the client-side {@link SeedReceiver} reference it.</p>
- *
- * <p>The packet body is exactly 8 bytes — one signed {@code long} carrying the
- * overworld world seed. There is no length prefix or version byte; the channel id
- * itself disambiguates the payload.</p>
+ * Channel ids are declared here so the server-side senders and client-side
+ * receivers reference them.</p>
  */
 public final class RegionNetworking {
 
-    /** Channel id for the world-seed packet. */
+    /** Channel id for the world-seed packet (8-byte long payload). */
     public static final ResourceLocation WORLD_SEED_PACKET_ID =
         new ResourceLocation("livingvillages", "world_seed");
+
+    /**
+     * Channel id for the settlements packet. Payload: {@code varInt count}
+     * followed by {@code count &times; (int chunkX, int chunkZ)}. The client
+     * accumulates these chunk coords and uses them (with the world seed) to
+     * resolve per-settlement tier + name without needing client-side
+     * StructureStart data, which 1.20.1 clients do not reliably expose.
+     */
+    public static final ResourceLocation SETTLEMENTS_PACKET_ID =
+        new ResourceLocation("livingvillages", "settlements");
 
     private RegionNetworking() {
     }

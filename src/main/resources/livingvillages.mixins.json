@@ -3,10 +3,8 @@
   "minVersion": "0.8",
   "package": "com.livingvillages.regions.client.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
-  "client": [
-    "RoadMapScreenMixin"
-  ],
+  "mixins": ["JigsawTierMixin"],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

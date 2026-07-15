@@ -3,7 +3,7 @@
   "id": "livingvillages-cluster",
   "version": "${version}",
   "name": "LivingVillages Cluster",
-  "description": "Hand-places village pieces at super-cell centers after worldgen, spawns villagers, and connects them via RoadWeaver.",
+  "description": "Medieval-traveler villages: tiered village/town/city sizes (~1:2:5), per-settlement fantasy-medieval Chinese names shown on zone entry, extra villagers + a permanent trader in cities, and /nearestcity + /nearesttown teleport commands. Built on RoadWeaver's road network.",
   "authors": ["yao2268431307-creator"],
   "license": "MIT",
   "environment": "*",

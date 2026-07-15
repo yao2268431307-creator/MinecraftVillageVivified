@@ -1,5 +1,11 @@
 # LivingVillages Biome Regions — Design Document
 
+> **⚠️ SUPERSEDED.** This document describes the *original* super-cell-region design
+> (regions, M0–M9 modules), which has been replaced by the settlement-tier system
+> (village/town/city tiers, per-settlement naming, city spawns, teleport commands).
+> See [`README.md`](./README.md) for the current, authoritative design. This file is
+> kept as a historical record of the project's evolution.
+
 ## 概述
 
 将 Minecraft 1.20.1 的村庄系统从"均匀散布的资源点"重塑为"以 biome 区位为单位的奇幻中世纪风文明网络"。玩家走到不同 biome 区域，看到不同风格的区位命名（如"风沙之地""霜白之境"），区位内的村庄自动用 RoadWeaver 连接成路网，H 键地图上标注区位信息。
