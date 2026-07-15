@@ -4,6 +4,8 @@ A Fabric mod for Minecraft 1.20.1 that turns RoadWeaver's road network into a **
 
 [RoadWeaver](https://github.com/shiroha-233/RoadWeaver) connects every village with custom roads; this mod makes the *destinations* worth the journey.
 
+> **中文版**：见 [`README_CN.md`](./README_CN.md)。
+
 ## The gameplay this mod expresses
 
 Vanilla villages are anonymous and barely worth a stop. This mod reshapes that into a journey rhythm: you pass several ordinary villages over mountains, rivers, and plains, then crest a hill to a huge **city** — a civilization hub with crowds of villagers and a permanent trader. Size is the lever: no custom-built content, just tiered scaling of the vanilla jigsaw village generator.
